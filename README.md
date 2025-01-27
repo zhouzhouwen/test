@@ -16,12 +16,7 @@ cross-chain-bridge-project/
 │   └── config.json                 # Relayer configuration file
 │-- scripts/
 │   └── start_relayer.sh             # Script to start the relayer
-│-- test/
-│   └── test_bridge.js (Optional)    # Test script for bridge verification
-│-- frontend/
-│   └── app.js (Optional)             # Frontend interaction script
 │-- README.md                         # Documentation
-│-- package.json (Optional)           # Frontend dependencies
 │-- .gitignore
 ```
 
@@ -95,17 +90,38 @@ npm install
 
 ### 1. Lock Tokens on Ethereum
 
-1. Go to Remix IDE and interact with the contract using `lockTokens`:
+**Input:**
+- Function: `lockTokens(uint256 amount, string targetChain)`
+- Example Call: 
 
 ```solidity
 lockTokens(1000000000000000000, "Polkadot")
 ```
 
-2. Verify the event is captured by the relayer.
+**Expected Output:**
+- Event `TokensLocked` emitted, containing:
+  - `user`: The sender's Ethereum address.
+  - `amount`: 1 ETH (1000000000000000000 wei).
+  - `targetChain`: "Polkadot".
+- The relayer detects the event and forwards it to the Polkadot chain.
+
+---
 
 ### 2. Unlock Tokens on Polkadot
 
-1. Use Polkadot.js to call the `unlock_tokens` function and confirm balance updates.
+**Input:**
+- Function: `unlock_tokens(account_id, amount)`
+- Example Call (via Polkadot.js):
+
+```rust
+unlock_tokens(5G9uBv...user_address..., 1000000000000000000)
+```
+
+**Expected Output:**
+- Event `TokensUnlocked` emitted, containing:
+  - `user`: The recipient's Polkadot address.
+  - `amount`: 1 ETH equivalent in Polkadot.
+- The corresponding amount is credited to the recipient's balance.
 
 ---
 
@@ -117,12 +133,3 @@ lockTokens(1000000000000000000, "Polkadot")
 | Ethereum gas fees too high  | Network congestion                  | Adjust gas price or try during off-peak   |
 | Substrate transaction fails| Incorrect input or insufficient funds | Check balance and input values            |
 
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
----
-
-Feel free to contribute, raise issues, or suggest improvements via GitHub Issues.
